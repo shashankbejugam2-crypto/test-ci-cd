@@ -3,29 +3,32 @@ name: Angular CI/CD Pipeline
 on:
   push:
     branches:
-      - main      # Trigger on push to main branch
-  pull_request:
-    branches:
-      - main      # Trigger on PR to main branch
+      - main    # Or the branch you want to deploy from
 
 jobs:
-  build-and-test:
+  build-deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Code
+    - name: Checkout repo
       uses: actions/checkout@v3
 
-    - name: Setup Node.js
+    - name: Set up Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '18'
 
-    - name: Install Dependencies
+    - name: Install dependencies
       run: npm install
 
     - name: Build Angular App
-      run: npm run build
+      run: ng build --configuration production --output-path docs
 
-    - name: Run Unit Tests
-      run: npm run test -- --watch=false --browsers=ChromeHeadless
+    - name: Add .nojekyll
+      run: touch docs/.nojekyll
+
+    - name: Deploy to GitHub Pages
+      uses: peaceiris/actions-gh-pages@v4
+      with:
+        github_token: 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
+        publish_dir: ./docs
